@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM rust:1.64.0 as build-env
+FROM rust:1.64.0 as build-env
 WORKDIR /app
 COPY . /app
 RUN cargo build --release
