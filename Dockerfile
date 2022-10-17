@@ -5,4 +5,4 @@ RUN cargo build --release
 
 FROM gcr.io/distroless/cc:nonroot
 COPY --from=build-env /app/target/release/ddnsrs /
-ENTRYPOINT ["./ddnsrs"]
+ENTRYPOINT ["/ddnsrs"]
