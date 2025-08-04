@@ -1,5 +1,6 @@
 use std::error::Error;
 use std::net::ToSocketAddrs;
+use tracing::{debug, warn};
 
 const PIP_PROVIDERS: [&str; 5] = [
     "https://ifconfig.me/ip",
@@ -12,15 +13,18 @@ const PIP_PROVIDERS: [&str; 5] = [
 pub async fn get_pip() -> Result<String, Box<dyn Error>> {
     let mut pip: String = String::from("");
     for url in PIP_PROVIDERS.iter() {
-        let response = reqwest::get(url.to_string()).await?.text().await?;
-        pip = response;
-        break;
+        if let Ok(response) = reqwest::get(url.to_string()).await {
+            pip = response.text().await?;
+            debug!("Fetched IP: {pip} from {url}");
+            break;
+        }
+        warn!("Failed to fetch IP from {url}");
     }
     Ok(pip)
 }
 
 pub fn resolve(hostname: &str) -> Result<String, Box<dyn Error>> {
-    let sock_addr = format!("{}:443", hostname)
+    let sock_addr = format!("{hostname}:443")
         .to_socket_addrs()?
         .next()
         .expect("Cannot resolve hostname");
