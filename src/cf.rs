@@ -2,7 +2,7 @@ use reqwest::header;
 use reqwest::{Client, StatusCode};
 use serde_json::{json, Value};
 use std::error::Error;
-use tracing::{error, info};
+use tracing::{debug, error, info};
 
 const CF_API: &str = "https://api.cloudflare.com/client/v4";
 
@@ -39,7 +39,7 @@ impl CFClient {
             .await?;
         let result = resp.json::<Value>().await?;
         let id = &result["result"][0]["id"];
-        info!("zone_id: {:#?}", id);
+        debug!("zone_id: {:#?}", id);
         let id = id.as_str().unwrap().to_owned();
         self.zone_id = Some(id.clone());
         Ok(id)
@@ -48,7 +48,7 @@ impl CFClient {
     pub async fn dns_record(&mut self, hostname: &String) -> Result<Value, Box<dyn Error>> {
         let zone_id = self.zone_id(hostname).await?;
         let url = format!("{CF_API}/zones/{zone_id}/dns_records?name={hostname}&type=A");
-        info!("url: {}", url);
+        debug!("url: {}", url);
         let resp = self.client.get(url).send().await?;
         let result = resp.json::<Value>().await?;
         let id = &result["result"][0];
@@ -70,7 +70,7 @@ impl CFClient {
         let zone_id = self.zone_id(hostname).await?;
         let record_id = dns_record["id"].as_str().unwrap();
         let url = format!("{CF_API}/zones/{zone_id}/dns_records/{record_id}");
-        info!("url: {}", url);
+        debug!("url: {}", url);
         let request_body = json!({
             "id": record_id,
             "type": "A",
