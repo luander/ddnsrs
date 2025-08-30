@@ -1,6 +1,5 @@
 use std::error::Error;
 use std::fs;
-use std::io::{Read, Write};
 use std::path::PathBuf;
 use tracing::info;
 
@@ -16,16 +15,13 @@ pub fn read_cached_ip() -> Result<Option<String>, Box<dyn Error>> {
         return Ok(None);
     }
     info!("Cache path: {:?}", path);
-    let mut file = fs::File::open(path)?;
-    let mut contents = String::new();
-    file.read_to_string(&mut contents)?;
-    Ok(Some(contents.trim().to_string()))
+    let contents = fs::read_to_string(&path)?.trim().into();
+    Ok(Some(contents))
 }
 
 pub fn write_cached_ip(ip: &str) -> Result<(), Box<dyn Error>> {
     let path = get_cache_path();
-    let mut file = fs::File::create(&path)?;
-    file.write_all(ip.as_bytes())?;
+    fs::write(&path, ip)?;
     info!("Cached IP {} to file {:?}", ip, &path);
     Ok(())
 }

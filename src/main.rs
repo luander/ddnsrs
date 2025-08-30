@@ -15,7 +15,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let pip = get_pip().await?;
     let cached_pip = read_cached_ip()?;
 
-    if Some(pip.clone()) == cached_pip {
+    if Some(&pip) == cached_pip.as_ref() {
         info!(
             "Actual IP {} == Cached IP {}. Exiting.",
             pip,
